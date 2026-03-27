@@ -7,9 +7,11 @@ import toml from '@shikijs/langs/toml';
 Alpine.plugin(persist)
 
 const urlParams = new URLSearchParams(window.location.search);
+const TABS = ["wdl-lint", "wdl-analysis"]
 
 Alpine.data('App', () => ({
-    tab: urlParams.get('tab') || state.defaultTab,
+    tabs: TABS,
+    activeTab: state.defaultTab,
     search: Alpine.$persist('').using(sessionStorage),
     wdlLint: {
         tags: state.defaultTags,
@@ -22,15 +24,29 @@ Alpine.data('App', () => ({
         version: state.wdlAnalysis.currentVersion,
     },
 
+    init() {
+        this.switchTab(urlParams.get('tab'));
+    },
+
+    get crate() {
+        return this.activeTab === 'wdl-analysis' ? this.wdlAnalysis : this.wdlLint
+    },
+
     switchTab(tab) {
-        this.tab = tab;
+        const nextTab = TABS.includes(tab) ? tab : state.defaultTab;
+        this.activeTab = nextTab;
 
         const url = new URL(window.location.href);
         const params = new URLSearchParams(url.search);
 
-        params.set('tab', tab);
+        params.set('tab', nextTab);
         url.search = params.toString();
         window.history.pushState({}, '', url);
+
+        this.$nextTick(() => {
+            // TOML highlighting is used in config examples
+            common.initManualHighlighting([toml]);
+        });
     },
 
     focusSearch(event) {
@@ -66,6 +82,3 @@ Alpine.data('App', () => ({
 }));
 
 Alpine.start();
-
-// TOML highlighting is used in config examples
-await common.initManualHighlighting([toml]);

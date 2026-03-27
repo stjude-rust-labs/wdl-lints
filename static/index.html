@@ -15,146 +15,179 @@
 </head>
 <body>
 <div class="main__container" x-data="App">
-    <header class="sticky top-0 z-40 w-full backdrop-blur-md bg-slate-950/80 border-b border-slate-800 mb-8">
-        <div class="max-w-5xl mx-auto px-4 h-16 flex items-center justify-between gap-4">
-            <div class="font-bold text-xl text-slate-100 flex items-center gap-2"><span class="h-6">WDL Lints</span>
+    <header class="border-b border-slate-800/80">
+        <div class="max-w-6xl mx-auto px-6 pt-6">
+            <div class="flex items-center justify-between mb-5">
+                <div>
+                    <h1 class="text-slate-100">WDL Lints</h1>
+                    <p class="text-sm text-slate-500 mt-1">
+                        Lint rules for WDL documents
+                    </p>
+                </div>
+
+                <div class="flex items-center gap-4">
+
+                    <!-- Theme toggle -->
+                    <div class="relative">
+                        <button x-on:click="
+            document.documentElement.classList.toggle('light')
+            theme = document.documentElement.classList.contains('light') ? 'light' : 'dark'
+            "
+                                class="header__button">
+                            <img src="assets/moon.light.svg"
+                                 class="size-6 hidden light:block"
+                                 alt="Moon icon">
+                            <img src="assets/sun.svg"
+                                 class="size-6 block light:hidden"
+                                 alt="Sun icon">
+                        </button>
+                    </div>
+
+                    <!-- Search -->
+                    <div class="relative text-slate-500">
+                        <input id="searchbox" x-ref="searchBox" x-model.debounce="search" type="text"
+                               placeholder="Search..."
+                               class="bg-slate-800/60 border border-slate-700/50 rounded-lg pl-10 pr-10 py-2 text-sm text-slate-200 placeholder-slate-500 w-64 focus:outline-none focus:border-blue-500/50 focus:ring-1 focus:ring-blue-500/30 transition-all"/>
+
+                        <div @keydown.window.slash="focusSearch($event)"></div>
+
+                        <img src="assets/search.svg"
+                             class="absolute left-3 top-1/2 -translate-y-1/2 size-5 pointer-events-none block light:hidden"
+                             alt="Search icon">
+                        <img src="assets/search.light.svg"
+                             class="absolute left-3 top-1/2 -translate-y-1/2 size-5 pointer-events-none hidden light:block"
+                             alt="Search icon">
+
+                        <img src="assets/x-mark.svg"
+                             class="absolute right-3 top-1/2 -translate-y-1/2 size-5 hover:cursor-pointer block light:hidden"
+                             alt="Clear icon" x-show="search !== ''"
+                             x-on:click="search = ''">
+                        <img src="assets/x-mark.light.svg"
+                             class="absolute right-3 top-1/2 -translate-y-1/2 size-5 hover:cursor-pointer hidden light:block"
+                             alt="Clear icon" x-show="search !== ''" x-on:click="search = ''">
+                    </div>
+
+                </div>
             </div>
-            <div class="relative flex-1 max-w-md">
-                <input id="searchbox" x-ref="searchBox" x-model.debounce="search" type="text" placeholder="Search..."
-                       class="block w-full pl-12 pr-10 py-2 bg-slate-900 border border-slate-800 rounded-lg text-sm placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 transition-all text-slate-100"/>
-                <div @keydown.window.slash="focusSearch($event)"></div>
-                <img src="assets/search.svg"
-                     class="absolute left-2 top-1/2 -translate-y-1/2 size-6 pointer-events-none block light:hidden"
-                     alt="Search icon"><img src="assets/search.light.svg"
-                                            class="absolute left-2 top-1/2 -translate-y-1/2 size-6 pointer-events-none hidden light:block"
-                                            alt="Search icon"><img src="assets/x-mark.svg"
-                                                                   class="absolute right-2 top-1/2 -translate-y-1/2 size-6 hover:cursor-pointer block light:hidden"
-                                                                   alt="Clear icon" x-show="search !== ''"
-                                                                   x-on:click="search = ''"><img
-                    src="assets/x-mark.light.svg"
-                    class="absolute right-2 top-1/2 -translate-y-1/2 size-6 hover:cursor-pointer hidden light:block"
-                    alt="Clear icon" x-show="search !== ''" x-on:click="search = ''">
-            </div>
-            <div class="flex flex-row-reverse items-start justify-between">
-                <button x-on:click="
-                  document.documentElement.classList.toggle('light')
-                  theme = document.documentElement.classList.contains('light') ? 'light' : 'dark'
-                  "
-                        class="p-2 rounded-lg border border-slate-800 bg-slate-900 text-slate-400 hover:text-yellow-400 transition-colors">
-                    ☀︎
-                </button>
+
+            <!-- Tab buttons -->
+            <div class="flex items-center gap-1">
+                <template x-for="tab in tabs">
+                    <button :class="tab === activeTab ? 'bg-slate-900/80 border-slate-700/70 text-slate-100' : 'bg-transparent border-transparent text-slate-500 hover:text-slate-300 hover:bg-slate-800/40'"
+                            @click="switchTab(tab)"
+                            class="relative px-5 py-2.5 text-sm font-mono rounded-t-lg transition-all duration-200 cursor-pointer border-t border-x"
+                            x-text="tab"
+                    ></button>
+                </template>
             </div>
         </div>
     </header>
-    <div class="flex justify-center mb-8">
-        <div class="bg-slate-900 p-1 rounded-xl border border-slate-800 inline-flex">
-            <button :class="tab === 'wdl-lint' ? 'bg-slate-700 text-white shadow-sm' : 'text-slate-400 hover:text-slate-200'"
-                    @click="switchTab('wdl-lint')"
-                    class="px-6 py-2 rounded-lg text-sm font-medium transition-all duration-200">wdl-lint
-            </button>
-            <button :class="tab === 'wdl-analysis' ? 'bg-slate-700 text-white shadow-sm' : 'text-slate-400 hover:text-slate-200'"
-                    @click="switchTab('wdl-analysis')"
-                    class="px-6 py-2 rounded-lg text-sm font-medium transition-all duration-200">wdl-analysis
-            </button>
-        </div>
-    </div>
-    <div class="border-none">
-        <div x-show="tab === 'wdl-lint'">
-            <div class="flex items-center gap-3 mb-6 pb-4 border-b border-slate-800">
-                <span class="text-xs font-bold uppercase text-slate-500">Filters:</span>
-                <div id="tag-filter" class="dropdown" x-data="{ open: false }"
-                     @focusout="if (!$el.contains($event.relatedTarget)) open = false">
-                    <button type="button" @click="open = !open"><span class="main__badge-text">Tags</span></button>
-                    <ul class="dropdown-menu" x-show="open">
-                        <li class="checkbox">
-                            <button class="w-full" @click="wdlLint.activeTags = [...wdlLint.tags]">All</button>
-                        </li>
-                        <li class="checkbox">
-                            <button class="w-full" @click="wdlLint.activeTags = []">None</button>
-                        </li>
-                        <li role="separator" class="divider"></li>
-                        <template x-for="tag in wdlLint.tags">
-                            <li class="checkbox"><label
-                                    class="flex items-center gap-3 px-2 py-1 rounded hover:bg-slate-800 cursor-pointer text-sm text-slate-300"
-                                    @mousedown.prevent x-text="tag"><input type="checkbox"
-                                                                           :checked="wdlLint.activeTags.includes(tag)"
-                                                                           @click="toggleTag(tag)"
-                                                                           class="rounded bg-slate-800 border-slate-600"/></label>
-                            </li>
-                        </template>
-                    </ul>
+
+    <!-- Filters -->
+    <div class="border-b border-slate-800/60">
+        <div
+                class="flex flex-row w-6xl mx-auto px-6 py-4"
+                x-show="activeTab === 'wdl-lint'"
+        >
+            <div class="flex items-center gap-3 flex-wrap">
+                <div class="flex items-center gap-2 text-slate-400 mr-1">
+                    <span class="text-sm tracking-wide uppercase">Filters</span>
                 </div>
-                <span class="ml-auto" x-text="wdlLint.version"></span>
-            </div>
-            <div class="rule__container">
-                <template x-for="lint in wdlLint.allLints" :key="lint.id">
-                    <article :id="lint.id" x-show="isVisible(lint)"
-                             class="group bg-slate-900/50 border border-slate-800 rounded-xl overflow-hidden hover:border-slate-700 transition-colors mb-4">
-                        <input :id="`label-${lint.id}`" type="checkbox" class="accordion-check">
-                        <label x-bind:for="`label-${lint.id}`"
-                               class="flex items-center justify-between p-5 cursor-pointer select-none w-full">
-                            <h2 class="text-base font-semibold text-slate-100 font-mono" x-text="lint.id"></h2>
-                            <div class="chevron transition-transform duration-200 text-slate-500 group-hover:text-slate-300">
-                                <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                          d="M19 9l-7 7-7-7"></path>
-                                </svg>
-                            </div>
-                        </label>
-                        <div class="accordion-content overflow-hidden">
-                            <div class="min-h-0">
-                                <div class="py-0 text-sm text-slate-400 leading-relaxed border-t border-slate-800/50 mt-2">
-                                    <div class="w-full px-5 pt-4 rule-description" x-html="lint.descriptionHtml"></div>
-                                    <div class="w-full flex flex-row flex-nowrap border-t border-slate-800/50 mt-2 rule-extras">
-                                        <div class="inline-flex grow my-auto" x-show="lint.tags.length &gt; 0">
-                                            Tags:
-                                            <div class="inline-flex gap-2 mx-1.25 my-auto">
-                                                <template x-for="tag in lint.tags">
-                                                    <div class="main__badge-inner"><span class="main__badge-inner-text"
-                                                                                         x-text="tag"></span></div>
-                                                </template>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
+
+                <div class="w-px h-6 bg-slate-700/70"></div>
+
+                <div
+                        class="relative"
+                        x-data="{ open: false }"
+                        @focusout="if (!$el.contains($event.relatedTarget)) open = false"
+                >
+                    <button
+                            class="flex items-center gap-2 px-4 py-2 rounded-lg transition-all duration-200 cursor-pointer border bg-slate-800/60 border-slate-700/50 text-slate-300 hover:bg-slate-700/60 hover:border-slate-600/50"
+                            @click="open = !open"
+                    >
+                        <span class="text-sm">Tags</span>
+                    </button>
+
+                    <div class="dropdown-menu" x-show="open">
+                        <div class="flex border-b border-slate-700/70">
+                            <button
+                                    class="flex-1 px-4 py-2.5 text-sm text-slate-300 hover:bg-slate-700/50 hover:text-white transition-colors cursor-pointer"
+                                    @click="wdlLint.activeTags = [...wdlLint.tags]">
+                                All
+                            </button>
+                            <button
+                                    class="flex-1 px-4 py-2.5 text-sm text-slate-300 hover:bg-slate-700/50 hover:text-white transition-colors cursor-pointer border-l border-slate-700/70"
+                                    @click="wdlLint.activeTags = []">
+                                None
+                            </button>
                         </div>
-                    </article>
-                </template>
-            </div>
-        </div>
-        <div x-show="tab === 'wdl-analysis'">
-            <div class="flex items-center gap-3 mb-6 pb-4 border-b border-slate-800"><span class="ml-auto"
-                                                                                           x-text="wdlAnalysis.version"></span>
-            </div>
-            <div class="rule__container">
-                <template x-for="lint in wdlAnalysis.allLints" :key="lint.id">
-                    <article :id="lint.id" x-show="isVisible(lint)"
-                             class="group bg-slate-900/50 border border-slate-800 rounded-xl overflow-hidden hover:border-slate-700 transition-colors mb-4">
-                        <input :id="`label-${lint.id}`" type="checkbox" class="accordion-check">
-                        <label x-bind:for="`label-${lint.id}`"
-                               class="flex items-center justify-between p-5 cursor-pointer select-none w-full">
-                            <h2 class="text-base font-semibold text-slate-100 font-mono" x-text="lint.id"></h2>
-                            <div class="chevron transition-transform duration-200 text-slate-500 group-hover:text-slate-300">
-                                <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                          d="M19 9l-7 7-7-7"></path>
-                                </svg>
-                            </div>
-                        </label>
-                        <div class="accordion-content overflow-hidden">
-                            <div class="min-h-0">
-                                <div class="py-0 text-sm text-slate-400 leading-relaxed border-t border-slate-800/50 mt-2">
-                                    <div class="w-full px-5 pt-4 rule-description mb-2"
-                                         x-html="lint.descriptionHtml"></div>
-                                </div>
-                            </div>
-                        </div>
-                    </article>
-                </template>
+
+                        <ul class="flex flex-col m-0 p-0">
+                            <template x-for="tag in wdlLint.tags">
+                                <li class="checkbox list-none">
+                                    <label class="flex items-center gap-3 px-2 py-1 rounded hover:bg-slate-800 cursor-pointer text-sm text-slate-300"
+                                           @mousedown.prevent>
+                                        <input type="checkbox"
+                                               :checked="wdlLint.activeTags.includes(tag)"
+                                               @click="toggleTag(tag)"
+                                               class="rounded bg-slate-800 border-slate-600"/>
+                                        <span x-text="tag"></span>
+                                    </label>
+                                </li>
+                            </template>
+                        </ul>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
+
+    <div class="w-6xl mx-auto px-6 py-6 flex items-center gap-3 flex-wrap">
+        <div class="flex items-center justify-between">
+            <p class="text-sm text-slate-500">
+                Showing <span class="text-slate-300"
+                              x-text="crate.allLints.filter(lint => isVisible(lint)).length"></span> of <span
+                    class="text-slate-300" x-text="crate.allLints.length"></span> rules
+            </p>
+        </div>
+
+        <span class="ml-auto" x-text="crate.version"></span>
+    </div>
+
+    <div class="w-6xl mx-auto px-6">
+        <template x-for="lint in crate.allLints" :key="lint.id">
+            <article :id="lint.id" x-show="isVisible(lint)"
+                     class="group bg-slate-900/50 border border-slate-800 rounded-xl overflow-hidden hover:border-slate-700 transition-colors mb-4">
+                <input :id="`label-${lint.id}`" type="checkbox" class="accordion-check">
+                <label x-bind:for="`label-${lint.id}`"
+                       class="flex items-center justify-between p-5 cursor-pointer select-none w-full">
+                    <h2 class="text-base font-semibold text-slate-100 font-mono" x-text="lint.id"></h2>
+                    <div class="flex flex-row items-center gap-2 flex-wrap">
+                        <template x-for="tag in lint.tags">
+                            <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs border"
+                                  :class="`tag__${tag}`.toLowerCase()" x-text="tag"></span>
+                        </template>
+
+                        <div class="chevron transition-transform duration-200 text-slate-500 group-hover:text-slate-300">
+                            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                      d="M19 9l-7 7-7-7"></path>
+                            </svg>
+                        </div>
+                    </div>
+                </label>
+
+                <div class="accordion-content">
+                    <div class="min-h-0 overflow-hidden">
+                        <div class="py-0 text-sm text-slate-400 leading-relaxed border-t border-slate-800/50 mt-2 pb-4">
+                            <div class="w-full px-5 pt-4 rule-description" x-html="lint.descriptionHtml"></div>
+                        </div>
+                    </div>
+                </div>
+            </article>
+        </template>
+    </div>
+</div>
 </div>
 </body>
 </html>
