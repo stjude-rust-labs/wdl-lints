@@ -72,12 +72,24 @@ pub struct Rule {
     pub tags: Option<Vec<String>>,
     pub description: String,
     pub explanation: String,
-    pub examples: Vec<String>,
+    pub examples: Vec<Example>,
     pub url: Option<String>,
     #[serde(default)]
     pub related: Option<Vec<String>>,
     #[serde(default)]
     pub config: Option<Vec<ConfigField>>,
+}
+
+#[derive(Debug, Deserialize)]
+pub struct Example {
+    negative: LabeledSnippet,
+    revised: Option<LabeledSnippet>,
+}
+
+#[derive(Debug, Deserialize)]
+pub struct LabeledSnippet {
+    pub label: Option<String>,
+    pub snippet: String,
 }
 
 impl Rule {
@@ -99,7 +111,21 @@ impl Rule {
             writeln!(&mut markdown).unwrap();
             writeln!(&mut markdown, "### Examples").unwrap();
             for example in examples {
-                writeln!(&mut markdown, "{example}").unwrap();
+                if let Some(label) = &example.negative.label {
+                    writeln!(&mut markdown, "{label}:").unwrap();
+                }
+
+                writeln!(&mut markdown, "```wdl\n{}```", example.negative.snippet).unwrap();
+
+                if let Some(revised) = &example.revised {
+                    writeln!(
+                        &mut markdown,
+                        "{}:",
+                        revised.label.as_deref().unwrap_or("Use instead")
+                    )
+                    .unwrap();
+                    writeln!(&mut markdown, "```wdl\n{}```", revised.snippet).unwrap();
+                }
             }
             writeln!(&mut markdown).unwrap();
         }
