@@ -1,0 +1,180 @@
+@import "tailwindcss";
+@import "../../sprocket/web-common/css/main.css";
+
+@layer base {
+    input:checked + label .chevron {
+        transform: rotate(180deg);
+    }
+
+    .accordion-check {
+        display: none;
+    }
+
+    .accordion-content {
+        display: grid;
+        grid-template-rows: 0fr;
+        transition: grid-template-rows 0.2s ease-out;
+    }
+
+    input:checked + label + .accordion-content {
+        grid-template-rows: 1fr;
+    }
+
+    .min-h-0 {
+        min-height: 0;
+    }
+
+    .main__container {
+        @apply min-h-screen bg-slate-950 text-slate-100;
+    }
+
+    .dropdown {
+        position: relative;
+        border: 1px solid var(--color-slate-700);
+        border-radius: 4px;
+    }
+
+    .dropdown button {
+        padding: 6px 12px;
+    }
+
+    .dropdown-menu {
+        @apply absolute top-full left-0 mt-2 z-50 min-w-[220px] bg-slate-800 border border-slate-700/70 rounded-xl shadow-2xl shadow-black/40 overflow-hidden;
+    }
+
+    .dropdown-menu .checkbox {
+        display: block;
+        white-space: nowrap;
+        margin: 0;
+    }
+
+    .dropdown-menu .checkbox label {
+        padding: 3px 20px;
+        width: 100%;
+    }
+
+    .dropdown-menu .checkbox input {
+        position: relative;
+        margin: 0 0.5rem 0;
+        padding: 0;
+    }
+
+    .rule-description {
+        position: relative;
+        display: block;
+        margin-bottom: -1px;
+        background: 0;
+    }
+
+    .rule-description > h3 {
+        border-top: 1px solid var(--color-slate-800);
+        padding: calc(var(--spacing) * 4) 15px;
+        margin: 0 -20px;
+        font-size: 18px;
+        @apply py-4 px-3.75;
+    }
+
+    .rule-description > h3:first-child {
+        border-top: none;
+        padding-top: 0;
+    }
+
+    .rule-configuration > h3 {
+        border-top: 1px solid var(--color-slate-800);
+        padding: calc(var(--spacing) * 4) 15px;
+        margin: 0 -20px;
+        font-size: 18px;
+        padding-bottom: 0;
+        @apply mt-2;
+    }
+
+    .rule-configuration > h5 {
+        padding: calc(var(--spacing) * 2) 15px;
+        margin: 0 -20px;
+        font-size: 16px;
+    }
+
+    .rule-description > ul {
+        list-style: initial;
+    }
+
+    .rule-description > ol {
+        list-style: decimal;
+    }
+
+    .rule-description p {
+        margin-top: revert;
+        margin-bottom: revert;
+    }
+
+    .rule-description ul,
+    .rule-description ol {
+        margin-block-start: revert;
+        margin-block-end: revert;
+        margin-top: revert;
+        margin-bottom: revert;
+        padding-inline-start: revert;
+        padding-left: revert;
+    }
+
+    .rule-extras > div {
+        padding: 9px 5px 5px 15px;
+    }
+
+    * {
+        box-sizing: border-box;
+    }
+
+    body {
+        background: var(--color-slate-950);
+        color: var(--color-slate-300);
+        font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+        font-size: 14px;
+        line-height: 1.42857143;
+        margin: 0;
+    }
+
+    .tag__completeness {
+        @apply bg-blue-500/15 text-blue-400 border-blue-500/25;
+    }
+
+    .tag__naming {
+        @apply bg-amber-500/15 text-amber-400 border-amber-500/25;
+    }
+
+    .tag__spacing {
+        @apply bg-cyan-500/15 text-cyan-400 border-cyan-500/25;
+    }
+
+    .tag__style {
+        @apply bg-pink-500/15 text-pink-400 border-pink-500/25;
+    }
+
+    .tag__clarity {
+        @apply bg-teal-500/15 text-teal-400 border-teal-500/25;
+    }
+
+    .tag__portability {
+        @apply bg-orange-500/15 text-orange-400 border-orange-500/25;
+    }
+
+    .tag__correctness {
+        @apply bg-red-500/15 text-red-400 border-red-500/25;
+    }
+
+    .tag__sorting {
+        @apply bg-indigo-500/15 text-indigo-400 border-indigo-500/25;
+    }
+
+    .tag__deprecated {
+        @apply bg-yellow-500/15 text-yellow-400 border-yellow-500/25;
+    }
+
+    .tag__documentation {
+        @apply bg-slate-500/15 text-slate-400 border-slate-500/25;
+    }
+
+    .tag__sprocketcompatibility {
+        @apply bg-purple-500/15 text-purple-400 border-purple-500/25;
+    }
+}

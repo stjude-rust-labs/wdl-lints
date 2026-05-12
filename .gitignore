@@ -1,0 +1,17 @@
+.DS_Store
+
+target/
+.vscode/
+
+rustc-ice*
+
+out/
+!tests/**/out/
+
+.idea
+
+**/node_modules/
+**/dist/meta.json
+
+dist/
+static/default-state.json

@@ -1,0 +1,20 @@
+[package]
+name = "wdl-lint-site-generator"
+version = "0.1.0"
+publish = false
+description = "Static site generator for wdl-lint"
+license = "MIT OR Apache-2.0"
+edition = "2024"
+authors = ["The Sprocket project contributors"]
+homepage = "https://sprocket.bio"
+repository = "https://github.com/stjude-rust-labs/wdl-lints"
+
+[dependencies]
+anyhow = "1.0.102"
+pulldown-cmark = "0.13.1"
+serde_json = "1.0.149"
+tracing = "0.1.44"
+tracing-subscriber = { version = "0.3.22", features = ["env-filter"] }
+walkdir = "2.5.0"
+serde = { version = "1.0.228", features = ["derive"] }
+
